@@ -29,6 +29,251 @@ def load_artifacts():
 # Load models at startup
 load_artifacts()
 
+@app.route('/', methods=['GET'])
+def index():
+    """Root endpoint returning a visually stunning API dashboard/documentation page."""
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ChurnPredict API Dashboard</title>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --bg: #09090b;
+                --card-bg: rgba(24, 24, 27, 0.6);
+                --border: rgba(63, 63, 70, 0.4);
+                --text: #f4f4f5;
+                --text-muted: #a1a1aa;
+                --primary: #6366f1;
+                --primary-glow: rgba(99, 102, 241, 0.15);
+                --success: #10b981;
+                --success-glow: rgba(16, 185, 129, 0.15);
+            }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background-color: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                overflow-x: hidden;
+                position: relative;
+            }
+            /* Backdrop Glow Effects */
+            body::before {
+                content: '';
+                position: absolute;
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+                top: 10%;
+                left: 10%;
+                z-index: 0;
+            }
+            body::after {
+                content: '';
+                position: absolute;
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+                bottom: 10%;
+                right: 10%;
+                z-index: 0;
+            }
+            .container {
+                position: relative;
+                z-index: 1;
+                width: 100%;
+                max-width: 800px;
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+            }
+            header {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                letter-spacing: -0.05em;
+                background: linear-gradient(135deg, #ffffff 30%, #a1a1aa 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 0.5rem;
+            }
+            p.subtitle {
+                color: var(--text-muted);
+                font-size: 1.1rem;
+            }
+            .card {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                backdrop-filter: blur(12px);
+                border-radius: 16px;
+                padding: 2.5rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            }
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: var(--success-glow);
+                border: 1px solid var(--success);
+                color: var(--success);
+                padding: 0.4rem 1rem;
+                border-radius: 9999px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+            }
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                background-color: var(--success);
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+                70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+                100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 1.2rem;
+                letter-spacing: -0.02em;
+            }
+            .endpoint-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .endpoint {
+                border-left: 3px solid var(--primary);
+                padding-left: 1.2rem;
+                transition: all 0.2s ease;
+            }
+            .endpoint:hover {
+                transform: translateX(4px);
+            }
+            .endpoint-header {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 0.4rem;
+            }
+            .method {
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 0.2rem 0.6rem;
+                border-radius: 4px;
+                letter-spacing: 0.05em;
+            }
+            .method.get {
+                background: rgba(99, 102, 241, 0.15);
+                color: #818cf8;
+                border: 1px solid rgba(99, 102, 241, 0.3);
+            }
+            .method.post {
+                background: rgba(236, 72, 153, 0.15);
+                color: #f472b6;
+                border: 1px solid rgba(236, 72, 153, 0.3);
+            }
+            .path {
+                font-family: monospace;
+                font-weight: 600;
+                font-size: 1.1rem;
+                color: #ffffff;
+            }
+            .endpoint-desc {
+                color: var(--text-muted);
+                font-size: 0.95rem;
+                margin-bottom: 0.5rem;
+            }
+            .btn {
+                display: inline-block;
+                background: var(--primary);
+                color: white;
+                text-decoration: none;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-size: 0.9rem;
+                font-weight: 500;
+                transition: background 0.2s;
+                border: none;
+                cursor: pointer;
+            }
+            .btn:hover {
+                background: #4f46e5;
+            }
+            footer {
+                text-align: center;
+                color: var(--text-muted);
+                font-size: 0.85rem;
+            }
+            footer a {
+                color: var(--primary);
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>ChurnPredict API</h1>
+                <p class="subtitle">Ensemble Learning Model REST API service</p>
+            </header>
+            
+            <div class="card">
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>API Online & Healthy</span>
+                </div>
+                
+                <h2>API Endpoints</h2>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method get">GET</span>
+                            <span class="path">/health</span>
+                        </div>
+                        <p class="endpoint-desc">Checks API and machine learning model status.</p>
+                        <a href="/health" class="btn">Test Endpoint</a>
+                    </div>
+                    
+                    <div class="endpoint">
+                        <div class="endpoint-header">
+                            <span class="method post">POST</span>
+                            <span class="path">/predict</span>
+                        </div>
+                        <p class="endpoint-desc">Predicts customer churn probability. Accepts JSON payload of customer records.</p>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Use <code>test_api.py</code> to test this endpoint.</span>
+                    </div>
+                </div>
+            </div>
+            
+            <footer>
+                <p>Built with Flask, Scikit-Learn, and XGBoost. Pushed to <a href="https://github.com/Piyush-4912/Customer_churn_prediction" target="_blank">GitHub</a>.</p>
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+    return html_content, 200
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint."""
